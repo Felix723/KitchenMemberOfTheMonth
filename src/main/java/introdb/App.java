@@ -36,9 +36,10 @@ public class App {
      * @param args Command-line arguments (not used)
      */
     public static void main(String[] args) {
+        int port = Integer.parseInt(System.getenv().getOrDefault("PORT", "8080"));
         Javalin app = Javalin.create(config -> {
             config.staticFiles.add("/");
-        }).start(8080);
+        }).start("0.0.0.0", port);
 
         app.get("/", ctx -> ctx.redirect("/index.html"));
 
