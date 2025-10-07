@@ -1,4 +1,4 @@
-# How to Build and Start the Project
+# How to Build and Start the Kitchen Project
 
 To build and start the Coffee Shop web app, you need to have the following software 
 installed: 
