@@ -48,7 +48,7 @@ public class App {
         app.get("/products", App::renderProductsPage);
         app.post("/purchase", App::handlePurchase);
         app.get("/purchases", App::renderPurchasesPage);
-        app.get("/my-purchases", App::renderMyPurchasesPage);
+        app.get("/my-points", App::renderMyPurchasesPage);
         app.post("/register", App::handleRegister);
     }
 
@@ -133,7 +133,7 @@ public class App {
      * @return List of Purchase records for the user
      */
     private static int getUserPoints(String username) {
-        int points = -1;
+        int points = 0;
         String currentTime = Instant.now().toString();
         System.out.println("current time: " + currentTime);
 
@@ -232,15 +232,15 @@ public class App {
     private static void renderProductsPage(Context ctx) {
         String username = ctx.sessionAttribute("username");
         StringBuilder html = new StringBuilder();
-        html.append(header("Products", username));
-        html.append("<main><h2>Products</h2>");
+        html.append(header("Award Types", username));
+        html.append("<main><h2>Award Types</h2>");
         html.append("<ul class='product-list'>");
         for (Product product : getProducts()) {
             String task_category = product.task_category();
             String desc = product.description();
             int price = product.points();
             html.append("<li class='product'>")
-                .append("<h3>").append(task_category).append(" - DKK ").append(price).append("</h3>")
+                .append("<h3>").append(task_category).append(" " + price).append("</h3>")
                 .append("<p>").append(desc).append("</p>");
             if (username != null) {
                 html.append("<form method='post' action='/purchase'>")
@@ -265,9 +265,9 @@ public class App {
     private static void renderPurchasesPage(Context ctx) {
         String username = ctx.sessionAttribute("username");
         StringBuilder html = new StringBuilder();
-        html.append(header("All Purchases", username));
-        html.append("<main><h2>All Purchases</h2>");
-        html.append("<table class='purchases'><thead><tr><th>User</th><th>Product</th><th>Time</th></tr></thead><tbody>");
+        html.append(header("Award Stats", username));
+        html.append("<main><h2>Award Stats</h2>");
+        html.append("<table class='purchases'><thead><tr><th>User</th><th>Points</th><th>Time</th></tr></thead><tbody>");
         for (Purchase purchase : getAllPurchases()) {
             html.append("<tr>")
                 .append("<td>").append(purchase.userName()).append("</td>")
@@ -293,7 +293,7 @@ public class App {
         }
         StringBuilder html = new StringBuilder();
         html.append(header("My Purchases", username));
-        html.append("<main><h2>My Purchases</h2>");
+        html.append("<main><h2>My Points</h2>");
         html.append("<table class='purchases'><thead><tr><th>Product</th><th>Time</th></tr></thead><tbody>");
         html.append("<b>").append(getUserPoints(username)).append("</b>");
         html.append("</tbody></table>");
@@ -367,7 +367,7 @@ public class App {
             return;
         }
         if (insertPoints(username, productname)) {
-            ctx.redirect("/my-purchases");
+            ctx.redirect("/my-points");
         } else {
             ctx.status(500).result("Purchase failed");
         }
@@ -387,11 +387,11 @@ public class App {
           .append("<link rel='stylesheet' href='style.css'>")
           .append("<link rel='icon' type='image/png' href='icon.png'>")
           .append("<header><h1>").append(title).append("</h1><nav>");
-        sb.append("<a href='/'>Home</a> | <a href='/products'>Products</a> | <a href='/purchases'>All Purchases</a>");
+        sb.append("<a href='/'>Home</a> | <a href='/products'>Award Types</a> | <a href='/purchases'>Award Stats</a>");
         if (username == null) {
             sb.append(" | <a href='/login.html'>Login</a> | <a href='/register.html'>Register</a>");
         } else {
-            sb.append(" | <a href='/my-purchases'>My Purchases</a> | <a href='/logout'>Logout (").append(username).append(")</a>");
+            sb.append(" | <a href='/my-points'>My Points</a> | <a href='/logout'>Logout (").append(username).append(")</a>");
         }
         sb.append("</nav></header>");
         return sb.toString();
