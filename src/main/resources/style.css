@@ -1,0 +1,50 @@
+/* simple, clean layout */
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  margin: 0;
+  padding: 0;
+  background: #f6f5f3;
+  color: #222;
+}
+
+header {
+  background: #5b3a2e;
+  color: white;
+  padding: 16px;
+}
+
+header h1 { margin: 0 0 8px 0; font-size: 1.4rem; }
+header nav a { color: #ffe; text-decoration: none; margin-right: 12px; }
+
+main { padding: 20px; max-width: 900px; margin: 0 auto; background: white; min-height: 60vh; }
+
+footer {
+  padding: 12px;
+  text-align: center;
+  background: #eee;
+  font-size: 0.9rem;
+}
+
+/* product list */
+.product-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.product { border: 1px solid #ddd; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+.product h3 { margin: 0 0 6px 0; font-size: 1.1rem; }
+.product p { margin: 0; color: #555; }
+
+/* form */
+.form label { display: block; margin-bottom: 8px; }
+.form input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; max-width: 320px; }
+button { background: #6b3e2b; color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; }
+button:hover { opacity: 0.95; }
+
+/* purchases table */
+table.purchases { width: 100%; border-collapse: collapse; margin-top: 12px; }
+table.purchases th, table.purchases td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+
+/* center content */
+.center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
