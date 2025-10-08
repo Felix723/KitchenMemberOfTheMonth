@@ -402,6 +402,6 @@ public class App {
      * @return HTML footer string
      */
     private static String footer() {
-        return "<footer><p>&copy; Introduction to Database Systems - Coffee Shop</p></footer></body></html>";
+        return "<footer><p>&copy; Emma & Felix - Kitchen Member of the Month</p></footer></body></html>";
     }
 }

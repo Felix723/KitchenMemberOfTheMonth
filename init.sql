@@ -1,7 +1,3 @@
-drop table if exists user;
-drop table if exists product;
-drop table if exists purchase;
-
 create table user(
 	username string primary key, 
 	email string, 
@@ -28,7 +24,3 @@ create table purchase(
 	username string,
 	primary key (awardTime, points, username)
 );
-
-insert into purchase values
- ('2025-10-11 9:55'::timestamp, 50, 'felix'),
- ('2025-10-11 9:56'::timestamp, 5, 'emma');
