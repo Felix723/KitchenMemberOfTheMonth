@@ -1,20 +1,18 @@
-drop table if exists user;
-drop table if exists product;
-drop table if exists purchase;
-
 create table user(
 	username string primary key, 
 	email string, 
 	password string
 );
+
 insert into user values
- ('felix', 'felix@itu.dk', '1');
+	 ('felix', 'felix@itu.dk', '1');
 
 create table product(
 	task_category string primary key,
 	points int,
 	description string
 );
+
 insert into product values
  ('high_value', 50, 'Take out Green Trash (Organic/Food Waste) & Clean the oven.'),
  ('medium_value', 30, 'Mopping the floor'),
@@ -28,6 +26,6 @@ create table purchase(
 	username string,
 	primary key (awardTime, points, username)
 );
-
+--
 insert into purchase values
- ('2025-10-11 9:55'::timestamp, 50, 'felix'),
+ ('2025-10-11 9:55'::timestamp, 50, 'felix');
