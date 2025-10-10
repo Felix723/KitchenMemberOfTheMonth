@@ -48,3 +48,86 @@ table.purchases th, table.purchases td { border: 1px solid #ddd; padding: 8px; t
   align-items: center;
   justify-content: center;
 }
+
+.leaderboard-container {
+background: white;
+border-radius: 20px;
+box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+padding: 40px;
+max-width: 600px;
+width: 100%;
+}
+
+.leaderboard-container h1 {
+text-align: center;
+color: #333;
+margin-bottom: 30px;
+font-size: 2em;
+}
+
+.leaderboard {
+list-style: none;
+counter-reset: rank;
+}
+
+.leaderboard li {
+counter-increment: rank;
+position: relative;
+background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+margin-bottom: 15px;
+padding: 20px 20px 20px 40px;
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+transition: all 0.3s ease;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.leaderboard li:nth-child(1) {
+background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+}
+
+.leaderboard li:nth-child(1)::before {
+content: "🥇";
+font-size: 1.5em;
+}
+
+.leaderboard li:nth-child(2) {
+background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+}
+
+.leaderboard li:nth-child(2)::before {
+content: "🥈";
+font-size: 1.5em;
+}
+
+.leaderboard li:nth-child(3) {
+background: linear-gradient(135deg, #cd7f32 0%, #daa06d 100%);
+}
+
+.leaderboard li:nth-child(3)::before {
+content: "🥉";
+font-size: 1.5em;
+}
+
+.board-name {
+font-weight: 600;
+color: black;
+font-size: 1.1em;
+text-align: left;
+}
+
+.board-points {
+font-weight: bold;
+color: black;
+font-size: 1.2em;
+min-width: 80px;
+text-align: right;
+}
+
+.leaderboard li:nth-child(1) .player-score,
+.leaderboard li:nth-child(2) .player-score,
+.leaderboard li:nth-child(3) .player-score {
+color: #333;
+}

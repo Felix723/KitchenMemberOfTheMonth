@@ -21,7 +21,17 @@ import io.javalin.http.Context;
 public class App {
 
     // DuckDB connection string for local file-based DB
-    private static final String CONNECTION = "jdbc:duckdb:./coffee.db";
+    private static final String CONNECTION = "jdbc:duckdb:" + getDatabasePath();
+    private static String getDatabasePath() {
+        // Check if we're running in production (Render sets this)
+        String renderEnv = System.getenv("RENDER");
+        if (renderEnv != null) {
+            return "/var/data/coffee.db";
+        }
+        // Default to local development path
+        return "./coffee.db";
+    }
+
     private static final int HIGH_VALUE = 50;
     private static final int MEDIUM_VALUE = 30;
     private static final int STANDARD_VALUE =10;
@@ -30,7 +40,7 @@ public class App {
 
     private record Product(String task_category, String description, int points) {}
     private record Purchase(String userName, int points, String awardTime) {}
-
+    private record LeaderboardEntry(String userName, int points){}
     /**
      * Main entry point. Starts the Javalin web server and sets up all routes.
      * @param args Command-line arguments (not used)
@@ -46,6 +56,7 @@ public class App {
         app.post("/login", App::handleLogin);
         app.get("/logout", App::handleLogout);
         app.get("/products", App::renderProductsPage);
+        app.get("/leaderboard", App::renderLeaderboardPage);
         app.post("/purchase", App::handlePurchase);
         app.get("/purchases", App::renderPurchasesPage);
         app.get("/my-points", App::renderMyPurchasesPage);
@@ -179,6 +190,30 @@ public class App {
         return points;
     }
 
+    private static List<LeaderboardEntry> getLeaderboard() {
+        List<LeaderboardEntry> lb = new ArrayList<LeaderboardEntry>();
+        try (Connection conn = DriverManager.getConnection(CONNECTION);
+            PreparedStatement ps = conn.prepareStatement(
+            "SELECT " +
+                "username, " +
+                "SUM(points) AS total_points " +
+            "FROM purchase " +
+            "GROUP BY username " +
+            "ORDER BY total_points DESC;"
+            );) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    System.out.println(rs.getString("username") + "with" + rs.getInt("total_points"));
+                    lb.add(new LeaderboardEntry(rs.getString("username"), rs.getInt("total_points")));
+
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lb;
+    }
+
     /**
      * Inserts a new purchase for a user and product.
      * @param username The username making the purchase
@@ -257,6 +292,23 @@ public class App {
         html.append(footer());
         ctx.html(html.toString());
     }
+    private static void renderLeaderboardPage(Context ctx) {
+        String username = ctx.sessionAttribute("username");
+        StringBuilder html = new StringBuilder();
+        html.append(header("Leaderboard", username));
+        html.append("<div class=''>");
+        html.append("<main><h3>Leaderboard</h3>");
+        html.append("<ol class='leaderboard'>");
+        for (LeaderboardEntry entry : getLeaderboard()){
+            html.append("<li>");
+            html.append("<span class='board-name'>" + entry.userName + "</span>");
+            html.append("<span class='board-points'>" + "<u>" + entry.points + "</u>" + "</span>");
+            html.append("</li>");
+        }
+        html.append("</ol>");
+        html.append("</div>");
+        ctx.html(html.toString());
+    }
 
     /**
      * Renders the all purchases page as HTML and sends it to the client.
@@ -276,6 +328,8 @@ public class App {
                 .append("</tr>");
         }
         html.append("</tbody></table>");
+        html.append("<b>Leaderboard</b>");
+        html.append(getLeaderboard());
         html.append("</main>");
         html.append(footer());
         ctx.html(html.toString());
@@ -294,7 +348,6 @@ public class App {
         StringBuilder html = new StringBuilder();
         html.append(header("My Purchases", username));
         html.append("<main><h2>My Points</h2>");
-        html.append("<table class='purchases'><thead><tr><th>Product</th><th>Time</th></tr></thead><tbody>");
         html.append("<b>").append(getUserPoints(username)).append("</b>");
         html.append("</tbody></table>");
         html.append("</main>");
@@ -387,7 +440,7 @@ public class App {
           .append("<link rel='stylesheet' href='style.css'>")
           .append("<link rel='icon' type='image/png' href='icon.png'>")
           .append("<header><h1>").append(title).append("</h1><nav>");
-        sb.append("<a href='/'>Home</a> | <a href='/products'>Award Types</a> | <a href='/purchases'>Award Stats</a>");
+        sb.append("<a href='/'>Home</a> |  <a href='/leaderboard'>Leaderboard</a> | <a href='/products'>Award Types</a> | <a href='/purchases'>Award Stats</a>");
         if (username == null) {
             sb.append(" | <a href='/login.html'>Login</a> | <a href='/register.html'>Register</a>");
         } else {
