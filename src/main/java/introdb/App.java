@@ -307,7 +307,6 @@ public class App {
         }
         html.append("</ol>");
         html.append("</div>");
-        html.append(getLeaderboard());
         ctx.html(html.toString());
     }
 
@@ -329,7 +328,6 @@ public class App {
                 .append("</tr>");
         }
         html.append("</tbody></table>");
-        html.append("<b>Leaderboard</b>");
         html.append("</main>");
         html.append(footer());
         ctx.html(html.toString());
