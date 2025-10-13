@@ -52,6 +52,7 @@ public class App {
         }).start("0.0.0.0", port);
 
         app.get("/", ctx -> ctx.redirect("/index.html"));
+        app.get("/schedule", ctx -> ctx.redirect("/schedule.html"));
 
         app.post("/login", App::handleLogin);
         app.get("/logout", App::handleLogout);

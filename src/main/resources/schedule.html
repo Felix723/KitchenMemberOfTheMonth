@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dormitory Kitchen Cleaning Schedule</title>
+    <style>
+        @page {
+            margin: 0.5in;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #1e3a5f;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #1e3a5f;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .header .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .upload-section {
+            background-color: #f0f4f8;
+            border: 2px dashed #1e3a5f;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .upload-header {
+            background-color: #1e3a5f;
+            color: white;
+            padding: 15px 30px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .upload-header:hover {
+            background-color: #2d5a8f;
+        }
+
+        .upload-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .toggle-icon {
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .upload-content {
+            padding: 30px;
+            text-align: center;
+            max-height: 500px;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .upload-content.collapsed {
+            max-height: 0;
+            padding: 0 30px;
+            overflow: hidden;
+        }
+
+        .file-input-wrapper {
+            margin: 20px 0;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            background-color: #1e3a5f;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .file-label:hover {
+            background-color: #2d5a8f;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .instructions {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #856404;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        thead {
+            background-color: #1e3a5f;
+            color: white;
+        }
+        
+        th {
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+            border: 1px solid #1e3a5f;
+        }
+        
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+            color: #333;
+        }
+        
+        tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+        
+        tbody tr:hover {
+            background-color: #e8f0f8;
+        }
+        
+        .week-cell {
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                margin: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+
+            .upload-section,
+            .instructions {
+                display: none;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CLEANING SCHEDULE KITCHEN 5B</h1>
+            <div class="subtitle">What happens in 5B stays in 5B</div>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-header" onclick="toggleUpload()">
+                <h3>Upload Excel File</h3>
+                <span class="toggle-icon" id="toggleIcon">▼</span>
+            </div>
+            <div class="upload-content" id="uploadContent">
+                <div class="instructions">
+                    <strong>Excel Format Required:</strong> Your Excel file must have 4 columns with headers: <br>
+                    <strong>Rooms</strong> | <strong>Start</strong> | <strong>End</strong> | <strong>Week</strong>
+                </div>
+                <div class="file-input-wrapper">
+                    <label for="excelFile" class="file-label">Choose Excel File</label>
+                    <input type="file" id="excelFile" accept=".xlsx,.xls" />
+                    <div class="file-name" id="fileName">No file chosen</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 30%;">ROOMS</th>
+                    <th style="width: 22%;">START DATE</th>
+                    <th style="width: 22%;">END DATE</th>
+                    <th style="width: 26%;">WEEK</th>
+                </tr>
+            </thead>
+            <tbody id="scheduleBody">
+                <tr>
+                    <td>All</td>
+                    <td>13-Oct</td>
+                    <td>19-Oct</td>
+                    <td class="week-cell">42</td>
+                </tr>
+                <tr>
+                    <td>501 + 502</td>
+                    <td>20-Oct</td>
+                    <td>26-Oct</td>
+                    <td class="week-cell">43</td>
+                </tr>
+                <tr>
+                    <td>503 + 524</td>
+                    <td>27-Oct</td>
+                    <td>02-Nov</td>
+                    <td class="week-cell">44</td>
+                </tr>
+                <tr>
+                    <td>522 + 524</td>
+                    <td>03-Nov</td>
+                    <td>09-Nov</td>
+                    <td class="week-cell">45</td>
+                </tr>
+                <tr>
+                    <td>529 + 548</td>
+                    <td>10-Nov</td>
+                    <td>16-Nov</td>
+                    <td class="week-cell">46</td>
+                </tr>
+                <tr>
+                    <td>550 + 551</td>
+                    <td>17-Nov</td>
+                    <td>23-Nov</td>
+                    <td class="week-cell">47</td>
+                </tr>
+                <tr>
+                    <td>552 + Oli</td>
+                    <td>24-Nov</td>
+                    <td>30-Nov</td>
+                    <td class="week-cell">48</td>
+                </tr>
+                <tr>
+                    <td>501 + 502</td>
+                    <td>01-Dec</td>
+                    <td>07-Dec</td>
+                    <td class="week-cell">49</td>
+                </tr>
+                <tr>
+                    <td>503 + 524</td>
+                    <td>08-Dec</td>
+                    <td>14-Dec</td>
+                    <td class="week-cell">50</td>
+                </tr>
+                <tr>
+                    <td>522 + 524</td>
+                    <td>15-Dec</td>
+                    <td>21-Dec</td>
+                    <td class="week-cell">51</td>
+                </tr>
+                <tr>
+                    <td>529 + 548</td>
+                    <td>22-Dec</td>
+                    <td>28-Dec</td>
+                    <td class="week-cell">52</td>
+                </tr>
+                <tr>
+                    <td>550 + 551</td>
+                    <td>29-Dec</td>
+                    <td>04-Jan</td>
+                    <td class="week-cell">1</td>
+                </tr>
+                <tr>
+                    <td>552 + Oli</td>
+                    <td>05-Jan</td>
+                    <td>11-Jan</td>
+                    <td class="week-cell">2</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('excelFile');
+        const fileName = document.getElementById('fileName');
+        const scheduleBody = document.getElementById('scheduleBody');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        function toggleUpload() {
+            const content = document.getElementById('uploadContent');
+            const icon = document.getElementById('toggleIcon');
+            
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+        }
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (!file) {
+                fileName.textContent = 'No file chosen';
+                return;
+            }
+
+            fileName.textContent = file.name;
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // Get the first sheet
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                    if (jsonData.length === 0) {
+                        showError('The Excel file is empty. Please add data to your spreadsheet.');
+                        return;
+                    }
+
+                    // Check if required columns exist (case-insensitive)
+                    const firstRow = jsonData[0];
+                    const keys = Object.keys(firstRow).map(k => k.toLowerCase());
+                    
+                    const hasRooms = keys.some(k => k.includes('room'));
+                    const hasStart = keys.some(k => k.includes('start'));
+                    const hasEnd = keys.some(k => k.includes('end'));
+                    const hasWeek = keys.some(k => k.includes('week'));
+
+                    if (!hasRooms || !hasStart || !hasEnd || !hasWeek) {
+                        showError('Excel file must contain columns: Rooms, Start, End, and Week');
+                        return;
+                    }
+
+                    // Clear existing table
+                    scheduleBody.innerHTML = '';
+
+                    // Populate table with new data
+                    jsonData.forEach((row, index) => {
+                        const tr = document.createElement('tr');
+                        
+                        // Find the correct column names (case-insensitive)
+                        const roomKey = Object.keys(row).find(k => k.toLowerCase().includes('room'));
+                        const startKey = Object.keys(row).find(k => k.toLowerCase().includes('start'));
+                        const endKey = Object.keys(row).find(k => k.toLowerCase().includes('end'));
+                        const weekKey = Object.keys(row).find(k => k.toLowerCase().includes('week'));
+
+                        tr.innerHTML = `
+                            <td>${row[roomKey] || ''}</td>
+                            <td>${row[startKey] || ''}</td>
+                            <td>${row[endKey] || ''}</td>
+                            <td class="week-cell">${row[weekKey] || ''}</td>
+                        `;
+                        
+                        scheduleBody.appendChild(tr);
+                    });
+
+                    showSuccess(`Successfully loaded ${jsonData.length} rows from Excel file!`);
+                    
+                } catch (error) {
+                    showError('Error reading Excel file: ' + error.message);
+                }
+            };
+
+            reader.onerror = function() {
+                showError('Error reading file. Please try again.');
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+
+        function showError(message) {
+            errorMessage.textContent = '⚠️ ' + message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = '✓ ' + message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
