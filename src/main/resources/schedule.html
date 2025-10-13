@@ -365,7 +365,7 @@
                     
                     // Get the first sheet
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { cellDates: true });
 
                     if (jsonData.length === 0) {
                         showError('The Excel file is empty. Please add data to your spreadsheet.');
@@ -401,8 +401,8 @@
 
                         tr.innerHTML = `
                             <td>${row[roomKey] || ''}</td>
-                            <td>${row[startKey] || ''}</td>
-                            <td>${row[endKey] || ''}</td>
+                            <td>${convertExcelDate(row[startKey]) || ''}</td>
+                            <td>${convertExcelDate(row[endKey]) || ''}</td>
                             <td class="week-cell">${row[weekKey] || ''}</td>
                         `;
                         
@@ -433,6 +433,24 @@
             successMessage.textContent = '✓ ' + message;
             successMessage.style.display = 'block';
             errorMessage.style.display = 'none';
+        }
+        function convertExcelDate(serial) {
+            // If the input is not a number, or is a small number (like a week number),
+            // return it as is. Excel dates are large serial numbers.
+            if (typeof serial !== 'number' || serial < 10000) {
+                return serial;
+            }
+
+            // This formula converts the Excel serial number (days since 1900)
+            // to a JavaScript-compatible timestamp (milliseconds since 1970).
+            // The 25569 is the day difference between the two epochs, accounting for Excel's leap year bug.
+            const date = new Date((serial - 25569) * 86400 * 1000);
+
+            const day = date.getDate();
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const month = months[date.getMonth()];
+
+            return `${day}-${month}`;
         }
     </script>
 </body>
